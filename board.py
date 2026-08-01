@@ -1,21 +1,21 @@
 # Wangieyo is editing - NOBODY ELSE EDIT
 
-# WHITE = (255, 255, 255)
-# BLACK = (0, 0, 0)
-# GRAY = (160, 160, 160)
-# LIGHT_GRAY = (222, 222, 222)
-# RED = (200, 30, 30)
-# GREEN = (0, 140, 60)
-# BLUE = (20, 20, 200)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (160, 160, 160)
+LIGHT_GRAY = (222, 222, 222)
+RED = (200, 30, 30)
+GREEN = (0, 140, 60)
+BLUE = (20, 20, 200)
 
-BS = 9
-CS = 60
-BX = 0
-BY = 0
+BOARD_SIZE = 9
+CELL_SIZE = 60
+BOARD_X = 0
+BOARD_Y = 0
 
-WIDTH = BS * CS
-HEIGHT = BS * CS + 110
-BOARD_END = BS * CS
+WIDTH = BOARD_SIZE * CELL_SIZE
+HEIGHT = BOARD_SIZE * CELL_SIZE + 110
+BOARD_END = BOARD_SIZE * CELL_SIZE
 
 DIFFICULTY_REMOVED = {
     "easy": 30,
@@ -40,7 +40,7 @@ class Board:
 
         removed = DIFFICULTY_REMOVED.get(difficulty, 30)
 
-        generator = SudokuGenerator(BS, removed)
+        generator = SudokuGenerator(BOARD_SIZE, removed)
         generator.fill_values()
         self.solution = [row[:] for row in generator.get_board()]
 
@@ -48,8 +48,8 @@ class Board:
         puzzle = generator.get_board()
 
         self.cells = [
-            [Cell(puzzle[r][c], r, c, screen) for c in range(BS)]
-            for r in range(BS)
+            [Cell(puzzle[r][c], r, c, screen) for c in range(BOARD_SIZE)]
+            for r in range(BOARD_SIZE)
         ]
         self.board = puzzle
 
@@ -59,20 +59,20 @@ class Board:
             for cell in row:
                 cell.draw()
 
-        for i in range(BS + 1):
+        for i in range(BOARD_SIZE + 1):
             line_width = 4 if i % 3 == 0 else 1
             # vertical line
             pygame.draw.line(
                 self.screen, BLACK,
-                (BX + i * CS, BY),
-                (BX + i * CS, BY + BS * CS),
+                (BOARD_X + i * CELL_SIZE, BOARD_Y),
+                (BOARD_X + i * CELL_SIZE, BOARD_Y + BOARD_SIZE * CELL_SIZE),
                 line_width,
             )
             # horizontal line
             pygame.draw.line(
                 self.screen, BLACK,
-                (BX, BY + i * CS),
-                (BX + BS * CS, BY + i * CS),
+                (BOARD_X, BOARD_Y + i * CELL_SIZE),
+                (BOARD_X + BOARD_SIZE * CELL_SIZE, BOARD_Y + i * CELL_SIZE),
                 line_width,
             )
 
@@ -89,10 +89,10 @@ class Board:
         If (x, y) is within the displayed board, returns (row, col) of the
         clicked cell. Otherwise returns None.
         """
-        if BX <= x < BX + BS * CS and \
-                BY <= y < BY + BS * CS:
-            col = (x - BX) // CS
-            row = (y - BY) // CS
+        if BOARD_X <= x < BOARD_X + BOARD_SIZE * CELL_SIZE and \
+                BOARD_Y <= y < BOARD_Y + BOARD_SIZE * CELL_SIZE:
+            col = (x - BOARD_X) // CELL_SIZE
+            row = (y - BOARD_Y) // CELL_SIZE
             return (row, col)
         return None
 
@@ -143,8 +143,8 @@ class Board:
 
     def find_empty(self):
         """Finds an empty cell and returns its (row, col), or None."""
-        for r in range(BS):
-            for c in range(BS):
+        for r in range(BOARD_SIZE):
+            for c in range(BOARD_SIZE):
                 if self.cells[r][c].value == 0:
                     return (r, c)
         return None
@@ -154,18 +154,18 @@ class Board:
         self.update_board()
         board = self.board
 
-        for i in range(BS):
+        for i in range(BOARD_SIZE):
             row_vals = [v for v in board[i] if v != 0]
             if len(set(row_vals)) != len(row_vals):
                 return False
 
-            col_vals = [board[r][i] for r in range(BS) if board[r][i] != 0]
+            col_vals = [board[r][i] for r in range(BOARD_SIZE) if board[r][i] != 0]
             if len(set(col_vals)) != len(col_vals):
                 return False
 
         box_size = 3
-        for box_row in range(0, BS, box_size):
-            for box_col in range(0, BS, box_size):
+        for box_row in range(0, BOARD_SIZE, box_size):
+            for box_col in range(0, BOARD_SIZE, box_size):
                 vals = [
                     board[r][c]
                     for r in range(box_row, box_row + box_size)
