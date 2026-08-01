@@ -5,7 +5,7 @@ class SudokuGenerator:
         self.box_length = 3
         self.board = []
 
-        # Create an empty board filled with zeroes.
+        # Creates an empty board filled with 0's
         for row in range(self.row_length):
             new_row = []
 
@@ -18,7 +18,6 @@ class SudokuGenerator:
         return self.board
 
     def print_board(self):
-        # Display every row of the board.
         for row in range(self.row_length):
             for col in range(self.row_length):
                 print(self.board[row][col], end=" ")
@@ -26,7 +25,7 @@ class SudokuGenerator:
             print()
 
     def valid_in_row(self, row, num):
-        # Check whether the number is already in the row.
+        # Checks whether the number is already in the row
         for col in range(self.row_length):
             if self.board[row][col] == num:
                 return False
@@ -34,7 +33,7 @@ class SudokuGenerator:
         return True
 
     def valid_in_col(self, col, num):
-        # Check whether the number is already in the column.
+        # Checks whether the number is already in the columns
         for row in range(self.row_length):
             if self.board[row][col] == num:
                 return False
@@ -42,7 +41,7 @@ class SudokuGenerator:
         return True
 
     def valid_in_box(self, row_start, col_start, num):
-        # Check whether the number is already in the 3 by 3 box.
+        # Checks whether the number is already in a 3x3 box or not
         for row in range(row_start, row_start + self.box_length):
             for col in range(col_start, col_start + self.box_length):
                 if self.board[row][col] == num:
