@@ -1,3 +1,4 @@
+# Wangieyo is editing - NOBODY ELSE EDIT
 class Board:
 
     def __init__(self, width, height, screen, difficulty):
