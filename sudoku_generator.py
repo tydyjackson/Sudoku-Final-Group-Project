@@ -1,5 +1,5 @@
 class SudokuGenerator:
-    def __init__(self, row_length, removed_cells):
+    def __init__(self, row_length, removed_cells): #TY IS EDITING - NOBODY ELSE EDIT
         self.row_length = row_length
         self.removed_cells = removed_cells
         self.box_length = 3
@@ -14,17 +14,17 @@ class SudokuGenerator:
 
             self.board.append(new_row)
 
-    def get_board(self):
+    def get_board(self): #TY IS EDITING - NOBODY ELSE EDIT
         return self.board
 
-    def print_board(self):
+    def print_board(self): #TY IS EDITING - NOBODY ELSE EDIT
         for row in range(self.row_length):
             for col in range(self.row_length):
                 print(self.board[row][col], end=" ")
 
             print()
 
-    def valid_in_row(self, row, num):
+    def valid_in_row(self, row, num): #TY IS EDITING - NOBODY ELSE EDIT
         # Checks whether the number is already in the row
         for col in range(self.row_length):
             if self.board[row][col] == num:
@@ -32,7 +32,7 @@ class SudokuGenerator:
 
         return True
 
-    def valid_in_col(self, col, num):
+    def valid_in_col(self, col, num): #TY IS EDITING - NOBODY ELSE EDIT
         # Checks whether the number is already in the columns
         for row in range(self.row_length):
             if self.board[row][col] == num:
@@ -40,7 +40,7 @@ class SudokuGenerator:
 
         return True
 
-    def valid_in_box(self, row_start, col_start, num):
+    def valid_in_box(self, row_start, col_start, num): #TY IS EDITING - NOBODY ELSE EDIT
         # Checks whether the number is already in a 3x3 box or not
         for row in range(row_start, row_start + self.box_length):
             for col in range(col_start, col_start + self.box_length):
@@ -49,7 +49,7 @@ class SudokuGenerator:
 
         return True
 
-    def is_valid(self, row, col, num):
+    def is_valid(self, row, col, num): #TY IS EDITING - NOBODY ELSE EDIT
         row_start = row - row % self.box_length
         col_start = col - col % self.box_length
 
