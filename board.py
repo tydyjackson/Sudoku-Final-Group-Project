@@ -1,5 +1,11 @@
 # Wangieyo is editing - NOBODY ELSE EDIT
 
+import pygame
+
+from cell import Cell
+from sudoku_generator import SudokuGenerator
+
+
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (160, 160, 160)
@@ -22,6 +28,7 @@ DIFFICULTY_REMOVED = {
     "medium": 40,
     "hard": 50,
 }
+
 
 class Board:
     def __init__(self, width, height, screen, difficulty):
@@ -47,11 +54,14 @@ class Board:
         generator.remove_cells()
         puzzle = generator.get_board()
 
+        # Save the starting puzzle so Reset can restore it.
+        self.original_board = [row[:] for row in puzzle]
+
         self.cells = [
             [Cell(puzzle[r][c], r, c, screen) for c in range(BOARD_SIZE)]
             for r in range(BOARD_SIZE)
         ]
-        self.board = puzzle
+        self.board = [row[:] for row in puzzle]
 
     def draw(self):
         """Draws the grid outline (with bold box borders) and every cell."""
@@ -61,16 +71,20 @@ class Board:
 
         for i in range(BOARD_SIZE + 1):
             line_width = 4 if i % 3 == 0 else 1
-            # vertical line
+
+            # Vertical line
             pygame.draw.line(
-                self.screen, BLACK,
+                self.screen,
+                BLACK,
                 (BOARD_X + i * CELL_SIZE, BOARD_Y),
                 (BOARD_X + i * CELL_SIZE, BOARD_Y + BOARD_SIZE * CELL_SIZE),
                 line_width,
             )
-            # horizontal line
+
+            # Horizontal line
             pygame.draw.line(
-                self.screen, BLACK,
+                self.screen,
+                BLACK,
                 (BOARD_X, BOARD_Y + i * CELL_SIZE),
                 (BOARD_X + BOARD_SIZE * CELL_SIZE, BOARD_Y + i * CELL_SIZE),
                 line_width,
@@ -78,8 +92,12 @@ class Board:
 
     def select(self, row, col):
         """Marks the cell at (row, col) as the current selected cell."""
+        if row < 0 or row >= BOARD_SIZE or col < 0 or col >= BOARD_SIZE:
+            return
+
         if self.selected_row is not None:
             self.cells[self.selected_row][self.selected_col].selected = False
+
         self.selected_row = row
         self.selected_col = col
         self.cells[row][col].selected = True
@@ -94,6 +112,7 @@ class Board:
             col = (x - BOARD_X) // CELL_SIZE
             row = (y - BOARD_Y) // CELL_SIZE
             return (row, col)
+
         return None
 
     def clear(self):
@@ -103,76 +122,84 @@ class Board:
         """
         if self.selected_row is None:
             return
+
         cell = self.cells[self.selected_row][self.selected_col]
+
         if not cell.original:
-            cell.cell_value(0)
-            cell.sketched_value(0)
+            cell.set_cell_value(0)
+            cell.set_sketched_value(0)
 
     def sketch(self, value):
         """Sets the sketched value of the currently selected cell."""
         if self.selected_row is None:
             return
+
         cell = self.cells[self.selected_row][self.selected_col]
+
         if not cell.original:
-            cell.sketched_value(value)
+            cell.set_sketched_value(value)
 
     def place_number(self, value):
         """Sets the value of the currently selected cell (on Enter)."""
         if self.selected_row is None:
             return
+
         cell = self.cells[self.selected_row][self.selected_col]
+
         if not cell.original:
-            cell.cell_value(value)
-            cell.sketched_value(0)
+            cell.set_cell_value(value)
+            cell.set_sketched_value(0)
 
     def reset_to_original(self):
-        """Resets all non-original cells back to empty (0)."""
-        for row in self.cells:
-            for cell in row:
-                if not cell.original:
-                    cell.cell_value(0)
-                    cell.sketched_value(0)
+        """Resets all cells to the values from the starting puzzle."""
+        for row in range(BOARD_SIZE):
+            for col in range(BOARD_SIZE):
+                cell = self.cells[row][col]
+                cell.set_cell_value(self.original_board[row][col])
+                cell.set_sketched_value(0)
+
+        self.update_board()
 
     def is_full(self):
         """Returns True if every cell on the board has a nonzero value."""
-        return all(cell.value != 0 for row in self.cells for cell in row)
+        for row in self.cells:
+            for cell in row:
+                if cell.value == 0:
+                    return False
+
+        return True
 
     def update_board(self):
         """Updates the underlying 2D board list from all Cell values."""
-        self.board = [[cell.value for cell in row] for row in self.cells]
+        self.board = []
+
+        for row in self.cells:
+            board_row = []
+
+            for cell in row:
+                board_row.append(cell.value)
+
+            self.board.append(board_row)
 
     def find_empty(self):
         """Finds an empty cell and returns its (row, col), or None."""
-        for r in range(BOARD_SIZE):
-            for c in range(BOARD_SIZE):
-                if self.cells[r][c].value == 0:
-                    return (r, c)
+        for row in range(BOARD_SIZE):
+            for col in range(BOARD_SIZE):
+                if self.cells[row][col].value == 0:
+                    return (row, col)
+
         return None
 
     def check_board(self):
-        """Checks whether the current board is a fully valid Sudoku solution."""
+        """Checks whether the current board is the completed solution."""
+        if not self.is_full():
+            return False
+
         self.update_board()
-        board = self.board
 
-        for i in range(BOARD_SIZE):
-            row_vals = [v for v in board[i] if v != 0]
-            if len(set(row_vals)) != len(row_vals):
-                return False
-
-            col_vals = [board[r][i] for r in range(BOARD_SIZE) if board[r][i] != 0]
-            if len(set(col_vals)) != len(col_vals):
-                return False
-
-        box_size = 3
-        for box_row in range(0, BOARD_SIZE, box_size):
-            for box_col in range(0, BOARD_SIZE, box_size):
-                vals = [
-                    board[r][c]
-                    for r in range(box_row, box_row + box_size)
-                    for c in range(box_col, box_col + box_size)
-                    if board[r][c] != 0
-                ]
-                if len(set(vals)) != len(vals):
+        for row in range(BOARD_SIZE):
+            for col in range(BOARD_SIZE):
+                if self.board[row][col] != self.solution[row][col]:
                     return False
 
         return True
