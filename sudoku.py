@@ -9,11 +9,9 @@ import math
 # print(random.randint(1, 10))
 # box ranges 0-2, 3-5, 6-8
 import random
-
 import pygame
 
 from board import Board, WIDTH, HEIGHT, BOARD_END, BOARD_SIZE
-
 
 # The original helper functions are kept here from the current project.
 def is_valid(board, row, col, num):
@@ -46,8 +44,7 @@ def fill_board(board):
                     if is_valid(board, row, col, num):
                         board[row][col] = num
 
-                        if fill_board(board):
-                            return True
+                        if fill_board(board):return True
 
                         board[row][col] = 0
 
@@ -64,10 +61,8 @@ def initialize_board(num_cols):
 def print_board(board):
     for row in range(len(board)):
         for column in range(len(board[0])):
-            if column == len(board[0]) - 1:
-                print(board[row][column], end="")
-            else:
-                print(board[row][column], end=" ")
+            if column == len(board[0]) - 1: print(board[row][column], end="")
+            else: print(board[row][column], end=" ")
 
         print()
 
@@ -100,8 +95,8 @@ class Button:
 
         font = pygame.font.Font(None, 32)
         words = font.render(self.text, True, WHITE)
-        words_rectangle = words.get_rect(center=self.rectangle.center)
-        screen.blit(words, words_rectangle)
+        wordsRectangle = words.get_rect(center=self.rectangle.center)
+        screen.blit(words, wordsRectangle)
 
     def was_clicked(self, position):
         return self.rectangle.collidepoint(position)
@@ -110,22 +105,22 @@ class Button:
 def draw_centered_text(screen, text, y, size, color):
     font = pygame.font.Font(None, size)
     words = font.render(text, True, color)
-    words_rectangle = words.get_rect(center=(WIDTH // 2, y))
-    screen.blit(words, words_rectangle)
+    wordsRectangle = words.get_rect(center=(WIDTH // 2, y))
+    screen.blit(words, wordsRectangle)
 
 
 def create_start_buttons():
-    easy_button = Button(30, 360, 145, 55, "EASY")
-    medium_button = Button(198, 360, 145, 55, "MEDIUM")
-    hard_button = Button(365, 360, 145, 55, "HARD")
-    return easy_button, medium_button, hard_button
+    easyButton = Button(30, 360, 145, 55, "EASY")
+    mediumButton = Button(198, 360, 145, 55, "MEDIUM")
+    hardButton = Button(365, 360, 145, 55, "HARD")
+    return easyButton, mediumButton, hardButton
 
 
 def create_game_buttons():
-    reset_button = Button(20, BOARD_END + 28, 145, 52, "RESET")
-    restart_button = Button(198, BOARD_END + 28, 145, 52, "RESTART")
-    exit_button = Button(375, BOARD_END + 28, 145, 52, "EXIT")
-    return reset_button, restart_button, exit_button
+    resetButton = Button(20, BOARD_END + 28, 145, 52, "RESET")
+    restartButton = Button(198, BOARD_END + 28, 145, 52, "RESTART")
+    exitButton = Button(375, BOARD_END + 28, 145, 52, "EXIT")
+    return resetButton, restartButton, exitButton
 
 
 def draw_start_screen(screen, buttons):
@@ -147,14 +142,14 @@ def draw_game_screen(screen, game_board, buttons):
     difficulty_text = "Difficulty: " + game_board.difficulty.capitalize()
     font = pygame.font.Font(None, 24)
     words = font.render(difficulty_text, True, DARK_BLUE)
-    words_rectangle = words.get_rect(center=(WIDTH // 2, HEIGHT - 12))
-    screen.blit(words, words_rectangle)
+    wordsRectangle = words.get_rect(center=(WIDTH // 2, HEIGHT - 12))
+    screen.blit(words, wordsRectangle)
 
 
-def draw_win_screen(screen, exit_button):
+def draw_win_screen(screen, exitButton):
     screen.fill(LIGHT_BLUE)
     draw_centered_text(screen, "Game Won!", 250, 72, GREEN)
-    exit_button.draw(screen)
+    exitButton.draw(screen)
 
 
 def draw_lose_screen(screen, restart_button):
@@ -247,16 +242,11 @@ def main():
                         state = "game"
 
                 elif state == "game":
-                    clicked_cell = game_board.click(
-                        mouse_position[0],
-                        mouse_position[1],
-                    )
+                    clicked_cell = game_board.click( mouse_position[0], mouse_position[1],)
 
-                    if clicked_cell is not None:
-                        game_board.select(clicked_cell[0], clicked_cell[1])
+                    if clicked_cell is not None: game_board.select(clicked_cell[0], clicked_cell[1])
 
-                    elif game_buttons[0].was_clicked(mouse_position):
-                        game_board.reset_to_original()
+                    elif game_buttons[0].was_clicked(mouse_position): game_board.reset_to_original()
 
                     elif game_buttons[1].was_clicked(mouse_position):
                         game_board = None
@@ -266,8 +256,7 @@ def main():
                         running = False
 
                 elif state == "won":
-                    if win_exit_button.was_clicked(mouse_position):
-                        running = False
+                    if win_exit_button.was_clicked(mouse_position): running = False
 
                 elif state == "lost":
                     if lose_restart_button.was_clicked(mouse_position):
@@ -281,10 +270,7 @@ def main():
                 if number is not None:
                     game_board.sketch(number)
 
-                elif (
-                    event.key == pygame.K_RETURN
-                    or event.key == pygame.K_KP_ENTER
-                ):
+                elif (event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER):
                     if game_board.selected_row is not None:
                         selected_cell = game_board.cells[
                             game_board.selected_row
@@ -292,45 +278,30 @@ def main():
 
                         if not selected_cell.original:
                             if selected_cell.sketched_value != 0:
-                                game_board.place_number(
-                                    selected_cell.sketched_value
-                                )
+                                game_board.place_number(selected_cell.sketched_value)
 
                                 if game_board.is_full():
-                                    if game_board.check_board():
-                                        state = "won"
-                                    else:
-                                        state = "lost"
+                                    if game_board.check_board(): state = "won"
+                                    else: state = "lost"
 
-                elif (
-                    event.key == pygame.K_BACKSPACE
-                    or event.key == pygame.K_DELETE
-                ):
+                elif ( event.key == pygame.K_BACKSPACE or event.key == pygame.K_DELETE):
                     game_board.clear()
 
-                elif event.key == pygame.K_UP:
-                    move_selection(game_board, -1, 0)
+                elif event.key == pygame.K_UP: move_selection(game_board, -1, 0)
 
-                elif event.key == pygame.K_DOWN:
-                    move_selection(game_board, 1, 0)
+                elif event.key == pygame.K_DOWN: move_selection(game_board, 1, 0)
 
-                elif event.key == pygame.K_LEFT:
-                    move_selection(game_board, 0, -1)
+                elif event.key == pygame.K_LEFT: move_selection(game_board, 0, -1)
 
-                elif event.key == pygame.K_RIGHT:
-                    move_selection(game_board, 0, 1)
+                elif event.key == pygame.K_RIGHT: move_selection(game_board, 0, 1)
 
-        if state == "start":
-            draw_start_screen(screen, start_buttons)
+        if state == "start": draw_start_screen(screen, start_buttons)
 
-        elif state == "game":
-            draw_game_screen(screen, game_board, game_buttons)
+        elif state == "game": draw_game_screen(screen, game_board, game_buttons)
 
-        elif state == "won":
-            draw_win_screen(screen, win_exit_button)
+        elif state == "won": draw_win_screen(screen, win_exit_button)
 
-        elif state == "lost":
-            draw_lose_screen(screen, lose_restart_button)
+        elif state == "lost": draw_lose_screen(screen, lose_restart_button)
 
         pygame.display.update()
         clock.tick(60)
